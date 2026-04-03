@@ -1,23 +1,12 @@
 export async function handler(event) {
   try {
-    const body = JSON.parse(event.body);
+    const { audio } = JSON.parse(event.body);
 
-    // Aqui esperamos receber um áudio em base64
-    const audioBase64 = body.audio;
-
-    if (!audioBase64) {
-      return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Áudio não enviado" })
-      };
-    }
-
-    // Converte base64 → Blob
-    const audioBuffer = Buffer.from(audioBase64, "base64");
+    const buffer = Buffer.from(audio, "base64");
 
     const formData = new FormData();
-    formData.append("file", new Blob([audioBuffer]), "audio.webm");
-    formData.append("model", "whisper-1");
+    formData.append("file", new Blob([buffer], { type: "audio/webm" }), "audio.webm");
+    formData.append("model", "gpt-4o-mini-transcribe");
 
     const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
       method: "POST",
